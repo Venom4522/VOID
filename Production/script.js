@@ -15,7 +15,9 @@ const projects = [
   { title: 'Apex Speaker Pro', cat: 'Product Visualization', year: '2023', palette: ['#111','#333','#888','#c8ff00'], shape: 'speaker' },
   { title: 'Nova Wristwatch', cat: 'Product Visualization', year: '2023', palette: ['#1c0a00','#92400e','#f59e0b','#fef3c7'], shape: 'watch' },
   { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a','#1e1b4b','#7c3aed','#a78bfa'], shape: 'motion' },
-  { title: 'VOID Showreel', cat: 'Showreel', year: '2025', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' }
+  { title: 'VOID Showreel', cat: 'Showreel', year: '2025', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' },
+  { title: 'Cinematic Sequence', cat: 'Concept Art', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'video_thumbnail.png' },
+  { title: 'Abstract Lightscape', cat: 'Motion Design', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'video_thumbnail.png' }
 ];
 
 const grid = document.getElementById('portfolioGrid');
