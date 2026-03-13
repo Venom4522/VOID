@@ -16,8 +16,8 @@ const projects = [
   { title: 'Nova Wristwatch', cat: 'Product Visualization', year: '2023', palette: ['#1c0a00','#92400e','#f59e0b','#fef3c7'], shape: 'watch' },
   { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a','#1e1b4b','#7c3aed','#a78bfa'], shape: 'motion' },
   { title: 'VOID Showreel', cat: 'Showreel', year: '2025', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' },
-  { title: 'Cinematic Sequence', cat: 'Concept Art', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'video_thumbnail.png' },
-  { title: 'Abstract Lightscape', cat: 'Motion Design', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'video_thumbnail.png' }
+  { title: 'Cinematic Sequence', cat: 'Concept Art', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'thumb_short1.png', aspect: 'vertical' },
+  { title: 'Abstract Lightscape', cat: 'Motion Design', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'thumb_short2.png', aspect: 'vertical' }
 ];
 
 const grid = document.getElementById('portfolioGrid');
@@ -27,8 +27,9 @@ projects.forEach((p, i) => {
   div.className = 'pitem reveal' + (i > 0 ? ` reveal-delay-${Math.min(i,3)}` : '');
 
   if (p.type === 'video') {
+    const isVertical = p.aspect === 'vertical' ? ' vertical' : '';
     div.innerHTML = `
-      <div class="pitem-video-wrapper" id="videoWrapper${i}">
+      <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}">
         <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
         <div class="video-play-overlay" id="playOverlay${i}">
           <div class="play-circle" id="centerBtn${i}">
