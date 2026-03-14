@@ -463,13 +463,37 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ── FORM ───────────────────────────────────
-function handleSubmit(e) {
-  e.preventDefault();
-  e.target.textContent = 'Sending...';
-  setTimeout(() => {
-    e.target.style.display = 'none';
-    document.getElementById('formNote').style.display = 'block';
-  }, 1200);
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+  contactForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = contactForm.querySelector('.form-submit');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    const formData = new FormData(contactForm);
+
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData).toString()
+    })
+    .then(res => {
+      if (res.ok) {
+        btn.style.display = 'none';
+        document.getElementById('formNote').style.display = 'block';
+        contactForm.reset();
+      } else {
+        throw new Error('Form submission failed');
+      }
+    })
+    .catch(err => {
+      btn.textContent = 'Send Message → Let\'s Create';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again or email directly.');
+      console.error(err);
+    });
+  });
 }
 
 // ── PARALLAX ───────────────────────────────
