@@ -9,12 +9,12 @@ track.innerHTML = html;
 
 // ── PORTFOLIO RENDERS ──────────────────────
 const projects = [
-  { title: 'Eclipse Eau de Parfum', cat: 'Product Visualization', year: '2024', palette: ['#1a0a2e', '#6b21a8', '#e879f9', '#fbbf24'], shape: 'bottle' },
-  { title: 'Orion Headphones', cat: 'Product Visualization', year: '2024', palette: ['#0a0a0a', '#1e3a5f', '#00d4ff', '#ffffff'], shape: 'headphone' },
-  { title: 'Verdant Tower', cat: 'Architectural Render', year: '2024', palette: ['#0d1f0d', '#166534', '#4ade80', '#f0fdf4'], shape: 'arch' },
-  { title: 'Apex Speaker Pro', cat: 'Product Visualization', year: '2023', palette: ['#111', '#333', '#888', '#c8ff00'], shape: 'speaker' },
-  { title: 'Nova Wristwatch', cat: 'Product Visualization', year: '2023', palette: ['#1c0a00', '#92400e', '#f59e0b', '#fef3c7'], shape: 'watch' },
-  { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a', '#1e1b4b', '#7c3aed', '#a78bfa'], shape: 'motion' },
+  // { title: 'Eclipse Eau de Parfum', cat: 'Product Visualization', year: '2024', palette: ['#1a0a2e', '#6b21a8', '#e879f9', '#fbbf24'], shape: 'bottle' },
+  // { title: 'Orion Headphones', cat: 'Product Visualization', year: '2024', palette: ['#0a0a0a', '#1e3a5f', '#00d4ff', '#ffffff'], shape: 'headphone' },
+  // { title: 'Verdant Tower', cat: 'Architectural Render', year: '2024', palette: ['#0d1f0d', '#166534', '#4ade80', '#f0fdf4'], shape: 'arch' },
+  // { title: 'Apex Speaker Pro', cat: 'Product Visualization', year: '2023', palette: ['#111', '#333', '#888', '#c8ff00'], shape: 'speaker' },
+  //{ title: 'Nova Wristwatch', cat: 'Product Visualization', year: '2023', palette: ['#1c0a00', '#92400e', '#f59e0b', '#fef3c7'], shape: 'watch' },
+  // { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a', '#1e1b4b', '#7c3aed', '#a78bfa'], shape: 'motion' },
   { title: 'Spy Camera Cinematic Showcase', cat: 'Product Animation', year: '2026', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' },
   { title: 'Charger - Cinematic Showcase', cat: 'Product Animation', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'thumb_short1.png', aspect: 'vertical' },
   { title: 'Phone Holder - Showcase', cat: '3D Animation', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'thumb_short2.png', aspect: 'vertical' }
