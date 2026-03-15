@@ -17,8 +17,8 @@ const projects = [
   // { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a', '#1e1b4b', '#7c3aed', '#a78bfa'], shape: 'motion' },
   { title: 'Spy Camera Cinematic Showcase', cat: 'Product Animation', year: '2026', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' },
   { title: 'Charger - Cinematic Showcase', cat: 'Product Animation', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'thumb_short1.png', aspect: 'vertical' },
-  { title: 'Phone Holder - Showcase', cat: '3D Animation', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'thumb_short2.png', aspect: 'vertical' }
-  { title: 'Lipstics Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'W1IoGSSVosU', thumbnail: 'thumb_short4.png', aspect: 'vertical' }
+  { title: 'Phone Holder - Showcase', cat: '3D Animation', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'thumb_short2.png', aspect: 'vertical' },
+  { title: 'Lipstics Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'W1IoGSSVosU', thumbnail: 'thumb_short4.png', aspect: 'vertical' },
   { title: 'Eyeliner Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'P5nUwMpS-F8', thumbnail: 'thumb_short3.png', aspect: 'vertical' }
 ];
 
