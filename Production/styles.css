@@ -281,11 +281,11 @@
   .pitem:nth-child(4) { grid-column: span 4; }
   .pitem:nth-child(5) { grid-column: span 4; }
   .pitem:nth-child(6) { grid-column: span 4; }
-  .pitem:nth-child(7) { grid-column: 1 / span 5; }
-  .pitem:nth-child(8) { grid-column: 1 / span 4; }
-  .pitem:nth-child(9) { grid-column: 5 / span 4; }
-  .pitem:nth-child(10) { grid-column: 9 / span 4; }
-  .pitem:nth-child(11) { grid-column: 1 / span 4; }
+  .pitem:nth-child(7) { grid-column: 4 / span 6; }
+  .pitem:nth-child(8) { grid-column: span 3; }
+  .pitem:nth-child(9) { grid-column: span 3; }
+  .pitem:nth-child(10) { grid-column: span 3; }
+  .pitem:nth-child(11) { grid-column: span 3; }
 
   .pitem-canvas {
     width: 100%;
@@ -778,25 +778,21 @@
   }
   .pitem-video-wrapper.playing .video-thumbnail { opacity: 0; pointer-events: none; }
 
-  /* Hide YouTube branding by cropping the iframe */
+  /* Hide YouTube branding by scaling the iframe to uniformly crop edges without altering aspect ratio */
   .yt-iframe-wrap {
     position: absolute;
-    top: -60px; left: 0; right: 0; bottom: -60px;
+    top: 0; left: 0; right: 0; bottom: 0;
     z-index: 2;
     pointer-events: auto;
-  }
-  .pitem-video-wrapper.vertical .yt-iframe-wrap {
-    top: 0; bottom: 0;
   }
   .yt-iframe-wrap iframe {
     width: 100%;
     height: 100%;
     border: none;
     transition: transform 0.3s;
+    transform: scale(1.15); /* Scales from center, seamlessly cropping out top logo and bottom controls */
   }
-  .pitem-video-wrapper.vertical .yt-iframe-wrap iframe {
-    transform: scale(1.15); /* Scales from center, seamlessly cropping out top logo and bottom controls overhead */
-  }
+  /* Remove the overrides since the universal scale handles both vertical and horizontal correctly */
   /* Block YouTube's red play watermark and prevent iframe click-through */
   .yt-iframe-wrap::after {
     content: '';
