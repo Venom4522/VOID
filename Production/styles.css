@@ -283,8 +283,8 @@
   .pitem:nth-child(6) { grid-column: span 4; }
   
   /* Dynamic Video Layout Classes */
-  .pitem-horizontal { grid-column: 4 / span 6; }
-  .pitem-vertical { grid-column: span 3; }
+  .pitem-horizontal { grid-column: 4 / span 6 !important; grid-row: span 1 !important; }
+  .pitem-vertical { grid-column: span 3 !important; grid-row: span 1 !important; }
 
   .pitem-canvas {
     width: 100%;
@@ -748,7 +748,7 @@
     #hero { padding: 7rem 1.5rem 3rem; }
     .hero-stats { display: none; }
     .portfolio-grid { grid-template-columns: 1fr; }
-    .pitem:nth-child(n) { grid-column: span 1; grid-row: span 1; }
+    .pitem:nth-child(n), .pitem-horizontal, .pitem-vertical { grid-column: span 1 !important; grid-row: span 1 !important; }
     #about, .contact-layout { grid-template-columns: 1fr; }
     .services-grid, .process-steps, .pricing-grid, .testi-grid { grid-template-columns: 1fr; }
     .service-card, .process-step { border-right: none; border-bottom: 1px solid var(--border); }
