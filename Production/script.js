@@ -25,8 +25,8 @@ const projects = [
 const grid = document.getElementById('portfolioGrid');
 
 projects.forEach((p, i) => {
-  const div = document.createElement('div');
-  div.className = 'pitem reveal' + (i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : '');
+  const aspectClass = p.aspect === 'vertical' ? ' pitem-vertical' : (p.type === 'video' ? ' pitem-horizontal' : '');
+  div.className = 'pitem reveal' + aspectClass + (i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : '');
 
   if (p.type === 'video') {
     const isVertical = p.aspect === 'vertical' ? ' vertical' : '';
