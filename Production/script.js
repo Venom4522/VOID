@@ -8,152 +8,127 @@ let html = '';
 track.innerHTML = html;
 
 // ── PORTFOLIO RENDERS ──────────────────────
-const projects = [
-  // { title: 'Eclipse Eau de Parfum', cat: 'Product Visualization', year: '2024', palette: ['#1a0a2e', '#6b21a8', '#e879f9', '#fbbf24'], shape: 'bottle' },
-  // { title: 'Orion Headphones', cat: 'Product Visualization', year: '2024', palette: ['#0a0a0a', '#1e3a5f', '#00d4ff', '#ffffff'], shape: 'headphone' },
-  // { title: 'Verdant Tower', cat: 'Architectural Render', year: '2024', palette: ['#0d1f0d', '#166534', '#4ade80', '#f0fdf4'], shape: 'arch' },
-  // { title: 'Apex Speaker Pro', cat: 'Product Visualization', year: '2023', palette: ['#111', '#333', '#888', '#c8ff00'], shape: 'speaker' },
-  //{ title: 'Nova Wristwatch', cat: 'Product Visualization', year: '2023', palette: ['#1c0a00', '#92400e', '#f59e0b', '#fef3c7'], shape: 'watch' },
-  // { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a', '#1e1b4b', '#7c3aed', '#a78bfa'], shape: 'motion' },
-  { title: 'Spy Camera Cinematic Showcase', cat: 'Product Animation', year: '2026', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' },
-  { title: 'Charger - Cinematic Showcase', cat: 'Product Animation', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'thumb_short1.png', aspect: 'vertical' },
-  { title: 'Phone Holder - Showcase', cat: '3D Animation', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'thumb_short2.png', aspect: 'vertical' },
-  { title: 'Lipstics Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'W1IoGSSVosU', thumbnail: 'thumb_short4.png', aspect: 'vertical' },
-  { title: 'Eyeliner Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'P5nUwMpS-F8', thumbnail: 'thumb_short3.png', aspect: 'vertical' }
-];
-
 const grid = document.getElementById('portfolioGrid');
 
-projects.forEach((p, i) => {
+// Extracts YouTube video ID from any URL format or bare ID
+function extractYouTubeId(input) {
+  if (!input) return '';
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/,
+    /^([A-Za-z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = input.trim().match(p);
+    if (m) return m[1];
+  }
+  return input.trim();
+}
+
+function buildPortfolioItem(p, i) {
   const div = document.createElement('div');
-  const aspectClass = p.aspect === 'vertical' ? ' pitem-vertical' : (p.type === 'video' ? ' pitem-horizontal' : '');
+  const isVert = p.aspect === 'vertical';
+  const aspectClass = isVert ? ' pitem-vertical' : ' pitem-horizontal';
   div.className = 'pitem reveal' + aspectClass + (i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : '');
 
-  if (p.type === 'video') {
-    const isVertical = p.aspect === 'vertical' ? ' vertical' : '';
-    div.innerHTML = `
-      <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}">
-        <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
-        <div class="video-play-overlay" id="playOverlay${i}">
-          <div class="play-circle" id="centerBtn${i}">
-            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-          </div>
+  const isVertical = isVert ? ' vertical' : '';
+  div.innerHTML = `
+    <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}">
+      <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
+      <div class="video-play-overlay" id="playOverlay${i}">
+        <div class="play-circle" id="centerBtn${i}">
+          <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
-        <button class="video-fs-btn" id="fsBtn${i}" title="Fullscreen">⛶</button>
       </div>
-      <div class="pitem-overlay">
-        <div class="pitem-tag">${p.cat} · ${p.year}</div>
-        <div class="pitem-title">${p.title}</div>
-        <div class="pitem-meta">CGI Showreel · Watch on Site</div>
-      </div>
-    `;
-    grid.appendChild(div);
+      <button class="video-fs-btn" id="fsBtn${i}" title="Fullscreen">⛶</button>
+    </div>
+    <div class="pitem-overlay">
+      <div class="pitem-tag">${p.cat} · ${p.year}</div>
+      <div class="pitem-title">${p.title}</div>
+      <div class="pitem-meta">${p.meta || 'CGI Showreel · Watch on Site'}</div>
+    </div>
+  `;
+  grid.appendChild(div);
 
-    // YouTube iframe embed for in-site playback
-    setTimeout(() => {
-      const wrapper = document.getElementById('videoWrapper' + i);
-      const centerBtn = document.getElementById('centerBtn' + i);
-      const fsBtn = document.getElementById('fsBtn' + i);
-      const overlay = document.getElementById('playOverlay' + i);
-      const thumb = wrapper.querySelector('.video-thumbnail');
-      let iframeWrap = null;
-      let isPlaying = false;
-      let hideTimer = null;
+  setTimeout(() => {
+    const wrapper = document.getElementById('videoWrapper' + i);
+    const centerBtn = document.getElementById('centerBtn' + i);
+    const fsBtn = document.getElementById('fsBtn' + i);
+    const overlay = document.getElementById('playOverlay' + i);
+    const thumb = wrapper.querySelector('.video-thumbnail');
+    let iframeWrap = null;
+    let isPlaying = false;
+    let hideTimer = null;
 
-      function showControls() {
-        wrapper.classList.remove('controls-hidden');
-        resetHideTimer();
-      }
+    function showControls() { wrapper.classList.remove('controls-hidden'); resetHideTimer(); }
+    function hideControls() { if (isPlaying) wrapper.classList.add('controls-hidden'); }
+    function resetHideTimer() { clearTimeout(hideTimer); if (isPlaying) hideTimer = setTimeout(hideControls, 5000); }
 
-      function hideControls() {
-        if (isPlaying) wrapper.classList.add('controls-hidden');
-      }
+    function createIframe() {
+      iframeWrap = document.createElement('div');
+      iframeWrap.className = 'yt-iframe-wrap';
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + p.videoId + '?si=UOiL14FE1Dnih4QW&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1';
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+      iframeWrap.appendChild(iframe);
+      const blocker = document.createElement('div');
+      blocker.className = 'yt-click-blocker';
+      iframeWrap.appendChild(blocker);
+      wrapper.insertBefore(iframeWrap, overlay);
+    }
 
-      function resetHideTimer() {
-        clearTimeout(hideTimer);
-        if (isPlaying) hideTimer = setTimeout(hideControls, 5000);
-      }
+    function updatePlayIcon(playing) {
+      centerBtn.innerHTML = playing
+        ? '<svg class="pause-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" fill="var(--accent)"/><rect x="15" y="3" width="4" height="18" fill="var(--accent)"/></svg>'
+        : '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
+    }
 
-      function createIframe() {
-        iframeWrap = document.createElement('div');
-        iframeWrap.className = 'yt-iframe-wrap';
-        const iframe = document.createElement('iframe');
-        iframe.src = 'https://www.youtube-nocookie.com/embed/' + p.videoId + '?si=UOiL14FE1Dnih4QW&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1';
-        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        iframe.setAttribute('allowfullscreen', '');
-        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-        iframeWrap.appendChild(iframe);
-        // Add transparent overlay to block YouTube's red play watermark
-        const blocker = document.createElement('div');
-        blocker.className = 'yt-click-blocker';
-        iframeWrap.appendChild(blocker);
-        wrapper.insertBefore(iframeWrap, overlay);
-      }
+    function play() {
+      if (!iframeWrap) createIframe();
+      wrapper.classList.add('playing');
+      updatePlayIcon(true);
+      isPlaying = true;
+      resetHideTimer();
+    }
 
-      function updatePlayIcon(playing) {
-        if (playing) {
-          centerBtn.innerHTML = '<svg class="pause-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" fill="var(--accent)"/><rect x="15" y="3" width="4" height="18" fill="var(--accent)"/></svg>';
-        } else {
-          centerBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
-        }
-      }
+    function pause() {
+      if (iframeWrap) { iframeWrap.remove(); iframeWrap = null; }
+      wrapper.classList.remove('playing', 'controls-hidden');
+      updatePlayIcon(false);
+      isPlaying = false;
+      clearTimeout(hideTimer);
+    }
 
-      function play() {
-        if (!iframeWrap) createIframe();
-        wrapper.classList.add('playing');
-        updatePlayIcon(true);
-        isPlaying = true;
-        resetHideTimer();
-      }
+    centerBtn.addEventListener('click', e => { e.stopPropagation(); isPlaying ? pause() : play(); });
+    thumb.addEventListener('click', e => { e.stopPropagation(); play(); });
+    wrapper.addEventListener('click', e => {
+      if (!isPlaying) return;
+      if (e.target === fsBtn || e.target === centerBtn || centerBtn.contains(e.target)) return;
+      showControls();
+    });
+    fsBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!iframeWrap) play();
+      const el = wrapper;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    });
+  }, 100);
+}
 
-      function pause() {
-        if (iframeWrap) { iframeWrap.remove(); iframeWrap = null; }
-        wrapper.classList.remove('playing');
-        wrapper.classList.remove('controls-hidden');
-        updatePlayIcon(false);
-        isPlaying = false;
-        clearTimeout(hideTimer);
-      }
-
-      // Click center button to play/pause
-      centerBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (isPlaying) pause(); else play();
-      });
-
-      // Click thumbnail to play
-      thumb.addEventListener('click', (e) => { e.stopPropagation(); play(); });
-
-      // Click on wrapper to toggle controls visibility when playing
-      wrapper.addEventListener('click', (e) => {
-        if (!isPlaying) return;
-        if (e.target === fsBtn || e.target === centerBtn || centerBtn.contains(e.target)) return;
-        showControls();
-      });
-
-      fsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!iframeWrap) play();
-        const el = wrapper;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        else if (el.msRequestFullscreen) el.msRequestFullscreen();
-      });
-    }, 100);
-  } else {
-    div.innerHTML = `
-      <canvas class="pitem-canvas" id="pc${i}"></canvas>
-      <div class="pitem-overlay">
-        <div class="pitem-tag">${p.cat} · ${p.year}</div>
-        <div class="pitem-title">${p.title}</div>
-        <div class="pitem-meta">Photorealistic · Commercial License</div>
-      </div>
-      <div class="pitem-arrow">↗</div>
-    `;
-    grid.appendChild(div);
-    setTimeout(() => drawPortfolioItem(`pc${i}`, p), 100 * i);
-  }
-});
+// Load portfolio from portfolio.json, fall back gracefully
+fetch('portfolio.json')
+  .then(r => r.json())
+  .then(projects => {
+    projects.forEach((p, i) => buildPortfolioItem(p, i));
+    // Re-observe any newly added .reveal elements
+    document.querySelectorAll('.pitem.reveal:not(.visible)').forEach(el => observer.observe(el));
+  })
+  .catch(() => {
+    grid.innerHTML = '<p style="color:var(--muted);padding:2rem">Could not load portfolio data.</p>';
+  });
 
 function drawPortfolioItem(id, p) {
   const canvas = document.getElementById(id);
