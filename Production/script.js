@@ -61,16 +61,17 @@ function buildPortfolioItem(p, i) {
 
     function showControls() { wrapper.classList.remove('controls-hidden'); resetHideTimer(); }
     function hideControls() { if (isPlaying) wrapper.classList.add('controls-hidden'); }
-    function resetHideTimer() { clearTimeout(hideTimer); if (isPlaying) hideTimer = setTimeout(hideControls, 5000); }
+    function resetHideTimer() { clearTimeout(hideTimer); if (isPlaying) hideTimer = setTimeout(hideControls, 2500); }
 
     function createIframe() {
       iframeWrap = document.createElement('div');
       iframeWrap.className = 'yt-iframe-wrap';
       const iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube-nocookie.com/embed/' + p.videoId + '?si=UOiL14FE1Dnih4QW&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1';
+      iframe.src = 'https://www.youtube.com/embed/' + p.videoId + '?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1';
       iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
       iframe.setAttribute('allowfullscreen', '');
       iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+      iframe.setAttribute('loading', 'lazy');
       iframeWrap.appendChild(iframe);
       const blocker = document.createElement('div');
       blocker.className = 'yt-click-blocker';
@@ -481,3 +482,76 @@ window.addEventListener('scroll', () => {
     o.style.transform = `translateY(${y * (0.1 + i * 0.05)}px)`;
   });
 });
+
+// ── SHOWREEL PLAYER ────────────────────────
+(function() {
+  const player = document.getElementById('showreelPlayer');
+  const playBtn = document.getElementById('showreelPlayBtn');
+  const fsBtn = document.getElementById('showreelFsBtn');
+  const thumb = document.getElementById('showreelThumb');
+  if (!player || !playBtn) return;
+
+  let iframeWrap = null;
+  let isPlaying = false;
+  let hideTimer = null;
+  const videoId = 'hC-G8UPCVXw';
+
+  function showControls() { player.classList.remove('controls-hidden'); resetHideTimer(); }
+  function hideControls() { if (isPlaying) player.classList.add('controls-hidden'); }
+  function resetHideTimer() { clearTimeout(hideTimer); if (isPlaying) hideTimer = setTimeout(hideControls, 2500); }
+
+  function createIframe() {
+    iframeWrap = document.createElement('div');
+    iframeWrap.className = 'yt-iframe-wrap';
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=' + videoId + '&vq=hd1080&hd=1';
+    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('loading', 'lazy');
+    iframeWrap.appendChild(iframe);
+    const blocker = document.createElement('div');
+    blocker.className = 'yt-click-blocker';
+    iframeWrap.appendChild(blocker);
+    player.insertBefore(iframeWrap, player.querySelector('.video-play-overlay'));
+  }
+
+  function updatePlayIcon(playing) {
+    playBtn.innerHTML = playing
+      ? '<svg class="pause-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" fill="var(--accent)"/><rect x="15" y="3" width="4" height="18" fill="var(--accent)"/></svg>'
+      : '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
+  }
+
+  function play() {
+    if (!iframeWrap) createIframe();
+    player.classList.add('playing');
+    updatePlayIcon(true);
+    isPlaying = true;
+    resetHideTimer();
+  }
+
+  function pause() {
+    if (iframeWrap) { iframeWrap.remove(); iframeWrap = null; }
+    player.classList.remove('playing', 'controls-hidden');
+    updatePlayIcon(false);
+    isPlaying = false;
+    clearTimeout(hideTimer);
+  }
+
+  playBtn.addEventListener('click', e => { e.stopPropagation(); isPlaying ? pause() : play(); });
+  thumb.addEventListener('click', e => { e.stopPropagation(); play(); });
+  player.addEventListener('click', e => {
+    if (!isPlaying) return;
+    if (e.target === fsBtn || e.target === playBtn || playBtn.contains(e.target)) return;
+    showControls();
+  });
+  fsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!iframeWrap) play();
+    if (player.requestFullscreen) player.requestFullscreen();
+    else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+    else if (player.msRequestFullscreen) player.msRequestFullscreen();
+  });
+
+  // Auto-hide controls for showreel too
+  player.addEventListener('mousemove', showControls);
+})();

@@ -12,6 +12,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap"
     rel="stylesheet">
+  <link rel="preconnect" href="https://www.youtube.com">
+  <link rel="preconnect" href="https://i.ytimg.com">
   <link rel="stylesheet" href="styles.css">
 
 </head>
@@ -64,6 +66,42 @@
       <div class="stat">
         <div class="stat-num">5★</div>
         <div class="stat-label">Average Rating</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showreel -->
+  <section id="showreel">
+    <div class="showreel-layout">
+      <div class="showreel-info">
+        <div class="section-label">Showreel</div>
+        <h2>See It<br>In <span style="color:var(--accent)">Motion.</span></h2>
+        <p class="showreel-desc">A curated reel of our best 3D animations, product reveals, and cinematic renders — all crafted from scratch.</p>
+        <div class="showreel-stats">
+          <div class="showreel-stat">
+            <div class="showreel-stat-num">30+</div>
+            <div class="showreel-stat-label">Projects Featured</div>
+          </div>
+          <div class="showreel-stat">
+            <div class="showreel-stat-num">4K</div>
+            <div class="showreel-stat-label">Resolution</div>
+          </div>
+        </div>
+      </div>
+      <div class="showreel-frame">
+        <div class="showreel-device">
+          <div class="showreel-notch"></div>
+          <div class="showreel-player" id="showreelPlayer">
+            <img class="showreel-thumb" src="https://i.ytimg.com/vi/hC-G8UPCVXw/maxresdefault.jpg" alt="AtmonFX Showreel" id="showreelThumb">
+            <div class="video-play-overlay" id="showreelOverlay">
+              <div class="play-circle" id="showreelPlayBtn">
+                <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+              </div>
+            </div>
+            <button class="video-fs-btn" id="showreelFsBtn" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+        <div class="showreel-glow"></div>
       </div>
     </div>
   </section>
@@ -206,55 +244,63 @@
 
   <!-- Testimonials -->
   <section id="testimonials">
-    <div class="section-label reveal">Client Words</div>
-    <h2 class="reveal">What They Say</h2>
+    <div class="section-label reveal">Client Reviews</div>
+    <h2 class="reveal">What Clients Say</h2>
     <div class="testi-grid">
       <div class="testi-card reveal">
-        <div class="testi-quote">"</div>
-        <p class="testi-text">AtmonFX took our skincare product line and transformed it into something out of a luxury
-          magazine editorial. Sales on our hero product jumped 34% after we switched to these renders on our site.</p>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Great communication + Great return time</p>
         <div class="testi-author">
-          <div class="testi-avatar">SK</div>
+          <div class="testi-avatar">CH</div>
           <div>
-            <div class="testi-name">Sofia K.</div>
-            <div class="testi-role">Founder, Luminos Skincare · Berlin</div>
+            <div class="testi-name">chris_heymann</div>
+            <div class="testi-role">🇹🇭 Thailand</div>
           </div>
         </div>
       </div>
       <div class="testi-card reveal reveal-delay-1">
-        <div class="testi-quote">"</div>
-        <p class="testi-text">We needed renders of a building that didn't exist yet to pitch investors. AtmonFX
-          delivered images so photorealistic that our investors assumed we had already broken ground. Closed $4M that
-          round.</p>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">he did a great job. anytime again</p>
         <div class="testi-author">
-          <div class="testi-avatar">MR</div>
+          <div class="testi-avatar">FF</div>
           <div>
-            <div class="testi-name">Marcus R.</div>
-            <div class="testi-role">CEO, Verdant Developments · Dubai</div>
+            <div class="testi-name">foxfire40900590</div>
+            <div class="testi-role">🇩🇪 Germany</div>
           </div>
         </div>
       </div>
       <div class="testi-card reveal">
-        <div class="testi-quote">"</div>
-        <p class="testi-text">The turnaround was unbelievable — full product animation campaign in 8 days. The attention
-          to material detail is something our in-house team couldn't replicate in twice the time.</p>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">As always, great work! Thank you!</p>
         <div class="testi-author">
-          <div class="testi-avatar">JL</div>
+          <div class="testi-avatar">NA</div>
           <div>
-            <div class="testi-name">Jin L.</div>
-            <div class="testi-role">Creative Director, APEX Audio · Singapore</div>
+            <div class="testi-name">nevenadeljanin</div>
+            <div class="testi-meta">↻ Repeat Client</div>
+            <div class="testi-role">🇷🇸 Serbia</div>
           </div>
         </div>
       </div>
       <div class="testi-card reveal reveal-delay-1">
-        <div class="testi-quote">"</div>
-        <p class="testi-text">I've worked with 3D studios charging ten times more. AtmonFX's quality is studio-grade but
-          the communication is personal, fast, and genuinely collaborative. My go-to for all campaigns now.</p>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Great job Dev, keep it going!</p>
         <div class="testi-author">
-          <div class="testi-avatar">AH</div>
+          <div class="testi-avatar">NA</div>
           <div>
-            <div class="testi-name">Amara H.</div>
-            <div class="testi-role">Brand Manager, Volta Gear · London</div>
+            <div class="testi-name">nevenadeljanin</div>
+            <div class="testi-meta">↻ Repeat Client</div>
+            <div class="testi-role">🇷🇸 Serbia</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">A maestro in the world of creative excellence. Demonstrated a high level of involvement in this crucial step of my project, all the skills that I needed FX, video composition, calibration, were aligned with my expectations. I obtained outcomes that I needed.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MP</div>
+          <div>
+            <div class="testi-name">mr_peelerhanje</div>
+            <div class="testi-role">🇫🇷 France</div>
           </div>
         </div>
       </div>
