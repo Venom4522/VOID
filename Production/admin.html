@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AtmonFX · Portfolio Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060608;
+    --surface: #0e0e12;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8ff00;
+    --accent-dim: rgba(200,255,0,0.12);
+    --text: #f0f0f0;
+    --muted: rgba(240,240,240,0.4);
+    --danger: #ff4d4d;
+    --danger-dim: rgba(255,77,77,0.12);
+    --radius: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── LOCK SCREEN ── */
+  #lockScreen {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1.5rem;
+  }
+  #lockScreen h1 { font-size: 2rem; letter-spacing: .05em; }
+  #lockScreen h1 span { color: var(--accent); }
+  #lockScreen p { color: var(--muted); font-family: 'DM Mono', monospace; font-size: .8rem; }
+  #pinForm { display: flex; gap: .75rem; align-items: center; }
+  #pinInput {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 1.2rem;
+    padding: .7rem 1.2rem; border-radius: var(--radius); width: 180px;
+    letter-spacing: .3em; text-align: center; outline: none;
+  }
+  #pinInput:focus { border-color: var(--accent); }
+  #pinInput.shake { animation: shake .35s; border-color: var(--danger); }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
+  }
+  .btn-accent {
+    background: var(--accent); color: #000; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem;
+    padding: .7rem 1.4rem; border-radius: var(--radius); transition: opacity .2s;
+  }
+  .btn-accent:hover { opacity: .85; }
+
+  /* ── LAYOUT ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.2rem 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  header .logo { font-size: 1.1rem; font-weight: 800; letter-spacing: .05em; }
+  header .logo span { color: var(--accent); }
+  header .badge {
+    font-family: 'DM Mono', monospace; font-size: .65rem;
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid rgba(200,255,0,.2); border-radius: 20px;
+    padding: .25rem .75rem; letter-spacing: .08em;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 2rem;
+    padding: 2.5rem;
+    flex: 1;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+  }
+  .card-title {
+    font-size: .65rem; font-family: 'DM Mono', monospace;
+    letter-spacing: .12em; color: var(--accent); text-transform: uppercase;
+    margin-bottom: 1.5rem; padding-bottom: .75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 1.1rem; }
+  .form-label {
+    display: block; font-size: .7rem; font-family: 'DM Mono', monospace;
+    letter-spacing: .08em; color: var(--muted); margin-bottom: .4rem;
+    text-transform: uppercase;
+  }
+  .form-input, .form-select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: .85rem;
+    padding: .65rem .9rem; border-radius: 6px; outline: none; transition: border-color .2s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .form-select option { background: #111; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .input-note { font-size: .65rem; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: .3rem; }
+  #videoIdPreview {
+    font-size: .7rem; font-family: 'DM Mono', monospace; color: var(--accent);
+    margin-top: .35rem; min-height: 1em;
+  }
+
+  .btn-submit {
+    width: 100%; padding: .85rem; text-align: center; font-size: .95rem;
+    margin-top: .75rem;
+  }
+
+  /* ── PORTFOLIO LIST ── */
+  #portfolioList { display: flex; flex-direction: column; gap: .85rem; }
+  .p-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.2rem;
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 1rem; align-items: center;
+    transition: border-color .2s;
+  }
+  .p-card:hover { border-color: rgba(255,255,255,0.14); }
+  .p-thumb {
+    width: 56px; height: 40px; object-fit: cover; border-radius: 4px;
+    background: #111;
+  }
+  .p-thumb-placeholder {
+    width: 56px; height: 40px; border-radius: 4px; background: #111;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .6rem; color: var(--muted); font-family: 'DM Mono', monospace; text-align: center;
+  }
+  .p-info { overflow: hidden; }
+  .p-title { font-size: .9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-meta { font-size: .65rem; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: .15rem; }
+  .p-aspect {
+    font-size: .55rem; font-family: 'DM Mono', monospace; letter-spacing: .08em;
+    border: 1px solid var(--border); padding: .15rem .4rem; border-radius: 20px; color: var(--muted);
+  }
+
+  .p-actions { display: flex; gap: .4rem; }
+  .btn-icon {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: .9rem;
+    display: flex; align-items: center; justify-content: center; transition: all .2s;
+  }
+  .btn-icon:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+  .btn-icon.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
+  .btn-icon.up:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--muted);
+  }
+
+  /* ── DOWNLOAD SECTION ── */
+  .download-section {
+    margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: .75rem;
+  }
+  .download-hint {
+    font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--muted); line-height: 1.6;
+  }
+  .download-hint code {
+    color: var(--accent); background: var(--accent-dim);
+    padding: .1rem .35rem; border-radius: 3px; font-size: .65rem;
+  }
+  .btn-download {
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid rgba(200,255,0,.3);
+    border-radius: 8px; padding: .75rem 1.2rem; font-size: .9rem; font-weight: 700;
+    cursor: pointer; font-family: 'Syne', sans-serif; transition: all .2s; text-decoration: none;
+    width: 100%;
+  }
+  .btn-download:hover { background: var(--accent); color: #000; }
+
+  /* ── EDIT MODAL ── */
+  #editModal {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 1rem;
+  }
+  #editModal.open { display: flex; }
+  #editModalBox {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 2rem; width: 100%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  #editModal .card-title { margin-bottom: 1.2rem; }
+  .modal-actions { display: flex; gap: .75rem; margin-top: 1rem; }
+  .btn-secondary {
+    flex: 1; padding: .75rem; text-align: center; font-family: 'Syne', sans-serif;
+    font-size: .9rem; font-weight: 700; border-radius: 8px; cursor: pointer;
+    background: transparent; color: var(--muted); border: 1px solid var(--border); transition: all .2s;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 200;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: .8rem;
+    padding: .8rem 1.4rem; border-radius: 8px;
+    transform: translateY(20px); opacity: 0; transition: all .3s; pointer-events: none;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: rgba(200,255,0,.3); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lockScreen">
+  <h1>AtmonFX<span>.</span> Admin</h1>
+  <p>Enter your PIN to continue</p>
+  <form id="pinForm" onsubmit="return false;">
+    <input type="password" id="pinInput" inputmode="numeric" maxlength="6" placeholder="· · · · · ·" autocomplete="off">
+    <button class="btn-accent" onclick="checkPin()">Unlock →</button>
+  </form>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">AtmonFX<span>.</span> &nbsp;<span style="color:var(--muted);font-weight:400;font-size:.8rem">Portfolio Admin</span></div>
+  <div class="badge">LOCAL ONLY</div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- ADD FORM -->
+  <div class="card">
+    <div class="card-title">▸ Add New Video</div>
+
+    <div class="form-group">
+      <label class="form-label">YouTube URL or Video ID</label>
+      <input type="text" class="form-input" id="f_url" placeholder="https://youtu.be/… or video ID" oninput="previewId()">
+      <div id="videoIdPreview"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Thumbnail Filename</label>
+      <input type="text" class="form-input" id="f_thumb" placeholder="thumb_myproject.png">
+      <div class="input-note">Place the image in the <code style="color:var(--accent)">Production/</code> folder first</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="f_title" placeholder="Spy Camera Cinematic Showcase">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" class="form-input" id="f_cat" placeholder="Product Animation">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Year</label>
+        <input type="text" class="form-input" id="f_year" placeholder="2026" maxlength="4">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Meta Description</label>
+      <input type="text" class="form-input" id="f_meta" placeholder="CGI Showreel · Watch on Site">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Aspect Ratio</label>
+      <select class="form-select" id="f_aspect">
+        <option value="horizontal">Horizontal (16:9 — wider card)</option>
+        <option value="vertical">Vertical (9:16 — taller card)</option>
+      </select>
+    </div>
+
+    <button class="btn-accent btn-submit" onclick="addItem()">＋ Add to Portfolio</button>
+  </div>
+
+  <!-- LIST + DOWNLOAD -->
+  <div>
+    <div class="card">
+      <div class="card-title">▸ Portfolio Items <span id="countBadge" style="color:var(--muted)"></span></div>
+      <div id="portfolioList">
+        <div class="empty-state">Loading portfolio.json…</div>
+      </div>
+
+      <div class="download-section">
+        <div class="download-hint">
+          After making changes, download the updated file and drop it into your
+          <code>Production/</code> folder, then commit & push to GitHub.
+        </div>
+        <a class="btn-download" id="downloadBtn" onclick="downloadJson()">
+          ↓ &nbsp;Download portfolio.json
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ── EDIT MODAL ── -->
+<div id="editModal">
+  <div id="editModalBox">
+    <div class="card-title">▸ Edit Item</div>
+
+    <div class="form-group">
+      <label class="form-label">YouTube URL or Video ID</label>
+      <input type="text" class="form-input" id="e_url" oninput="previewEditId()">
+      <div id="editVideoIdPreview"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Thumbnail Filename</label>
+      <input type="text" class="form-input" id="e_thumb">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="e_title">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" class="form-input" id="e_cat">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Year</label>
+        <input type="text" class="form-input" id="e_year" maxlength="4">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Meta Description</label>
+      <input type="text" class="form-input" id="e_meta">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Aspect Ratio</label>
+      <select class="form-select" id="e_aspect">
+        <option value="horizontal">Horizontal (16:9)</option>
+        <option value="vertical">Vertical (9:16)</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeEdit()">Cancel</button>
+      <button class="btn-accent" style="flex:1;padding:.75rem;border-radius:8px" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<script>
+// ── SIMPLE PIN LOCK ──────────────────────────────────────────────────────────
+const CORRECT_PIN = '1234'; // ← Change this to your preferred PIN
+
+function checkPin() {
+  const val = document.getElementById('pinInput').value;
+  if (val === CORRECT_PIN) {
+    document.getElementById('lockScreen').style.display = 'none';
+    initAdmin();
+  } else {
+    const inp = document.getElementById('pinInput');
+    inp.classList.add('shake');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('shake'), 400);
+  }
+}
+
+document.getElementById('pinInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPin();
+});
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+let portfolio = [];
+let editIndex = -1;
+
+function initAdmin() {
+  fetch('portfolio.json')
+    .then(r => r.json())
+    .then(data => {
+      portfolio = data;
+      renderList();
+      toast('Loaded ' + portfolio.length + ' items from portfolio.json', 'success');
+    })
+    .catch(() => {
+      portfolio = [];
+      renderList();
+      toast('Could not load portfolio.json — starting fresh');
+    });
+}
+
+// ── EXTRACT YOUTUBE ID ───────────────────────────────────────────────────────
+function extractId(input) {
+  if (!input) return '';
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/,
+    /^([A-Za-z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = input.trim().match(p);
+    if (m) return m[1];
+  }
+  return input.trim();
+}
+
+function previewId() {
+  const id = extractId(document.getElementById('f_url').value);
+  const el = document.getElementById('videoIdPreview');
+  el.textContent = id ? 'Video ID: ' + id : '';
+}
+function previewEditId() {
+  const id = extractId(document.getElementById('e_url').value);
+  const el = document.getElementById('editVideoIdPreview');
+  el.textContent = id ? 'Video ID: ' + id : '';
+}
+
+// ── RENDER LIST ──────────────────────────────────────────────────────────────
+function renderList() {
+  const list = document.getElementById('portfolioList');
+  const count = document.getElementById('countBadge');
+  count.textContent = '(' + portfolio.length + ')';
+
+  if (!portfolio.length) {
+    list.innerHTML = '<div class="empty-state">No items yet. Add your first video →</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  portfolio.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'p-card';
+
+    const thumbHtml = p.thumbnail
+      ? `<img class="p-thumb" src="${p.thumbnail}" alt="${p.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`+
+        `<div class="p-thumb-placeholder" style="display:none">no img</div>`
+      : `<div class="p-thumb-placeholder">no img</div>`;
+
+    card.innerHTML = `
+      ${thumbHtml}
+      <div class="p-info">
+        <div class="p-title">${p.title}</div>
+        <div class="p-meta">${p.cat} · ${p.year} &nbsp;·&nbsp; ID: ${p.videoId} &nbsp;<span class="p-aspect">${p.aspect}</span></div>
+        <div class="p-meta" style="opacity:.6">${p.meta || ''}</div>
+      </div>
+      <div class="p-actions">
+        <button class="btn-icon up" title="Move up" onclick="moveUp(${i})">↑</button>
+        <button class="btn-icon" title="Edit" onclick="openEdit(${i})">✎</button>
+        <button class="btn-icon danger" title="Delete" onclick="deleteItem(${i})">✕</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ── ADD ──────────────────────────────────────────────────────────────────────
+function addItem() {
+  const url = document.getElementById('f_url').value.trim();
+  const videoId = extractId(url);
+  const title = document.getElementById('f_title').value.trim();
+
+  if (!videoId) { toast('Please enter a YouTube URL or video ID'); return; }
+  if (!title)   { toast('Please enter a title'); return; }
+
+  const item = {
+    title,
+    cat:       document.getElementById('f_cat').value.trim() || 'Product Animation',
+    meta:      document.getElementById('f_meta').value.trim() || 'CGI Showreel · Watch on Site',
+    year:      document.getElementById('f_year').value.trim() || String(new Date().getFullYear()),
+    videoId,
+    thumbnail: document.getElementById('f_thumb').value.trim() || '',
+    aspect:    document.getElementById('f_aspect').value
+  };
+
+  portfolio.unshift(item); // add to top
+  renderList();
+  clearAddForm();
+  toast('Added "' + title + '"', 'success');
+}
+
+function clearAddForm() {
+  ['f_url','f_thumb','f_title','f_cat','f_year','f_meta'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_aspect').value = 'horizontal';
+  document.getElementById('videoIdPreview').textContent = '';
+}
+
+// ── DELETE ───────────────────────────────────────────────────────────────────
+function deleteItem(i) {
+  if (!confirm('Remove "' + portfolio[i].title + '"?')) return;
+  portfolio.splice(i, 1);
+  renderList();
+  toast('Item removed');
+}
+
+// ── REORDER ──────────────────────────────────────────────────────────────────
+function moveUp(i) {
+  if (i === 0) return;
+  [portfolio[i-1], portfolio[i]] = [portfolio[i], portfolio[i-1]];
+  renderList();
+}
+
+// ── EDIT ─────────────────────────────────────────────────────────────────────
+function openEdit(i) {
+  editIndex = i;
+  const p = portfolio[i];
+  document.getElementById('e_url').value     = p.videoId;
+  document.getElementById('e_thumb').value   = p.thumbnail || '';
+  document.getElementById('e_title').value   = p.title;
+  document.getElementById('e_cat').value     = p.cat;
+  document.getElementById('e_year').value    = p.year;
+  document.getElementById('e_meta').value    = p.meta || '';
+  document.getElementById('e_aspect').value  = p.aspect;
+  document.getElementById('editVideoIdPreview').textContent = 'Video ID: ' + p.videoId;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEdit() {
+  document.getElementById('editModal').classList.remove('open');
+}
+
+function saveEdit() {
+  const url = document.getElementById('e_url').value.trim();
+  const videoId = extractId(url);
+  const title = document.getElementById('e_title').value.trim();
+  if (!videoId || !title) { toast('Video ID and title are required'); return; }
+
+  portfolio[editIndex] = {
+    title,
+    cat:       document.getElementById('e_cat').value.trim(),
+    meta:      document.getElementById('e_meta').value.trim(),
+    year:      document.getElementById('e_year').value.trim(),
+    videoId,
+    thumbnail: document.getElementById('e_thumb').value.trim(),
+    aspect:    document.getElementById('e_aspect').value
+  };
+  renderList();
+  closeEdit();
+  toast('Saved!', 'success');
+}
+
+// Close modal on backdrop click
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEdit();
+});
+
+// ── DOWNLOAD ─────────────────────────────────────────────────────────────────
+function downloadJson() {
+  const json = JSON.stringify(portfolio, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'portfolio.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('portfolio.json downloaded → drop it into Production/', 'success');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (type === 'success' ? ' success' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+</script>
+</body>
+</html>

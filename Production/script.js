@@ -8,152 +8,188 @@ let html = '';
 track.innerHTML = html;
 
 // ── PORTFOLIO RENDERS ──────────────────────
-const projects = [
-  // { title: 'Eclipse Eau de Parfum', cat: 'Product Visualization', year: '2024', palette: ['#1a0a2e', '#6b21a8', '#e879f9', '#fbbf24'], shape: 'bottle' },
-  // { title: 'Orion Headphones', cat: 'Product Visualization', year: '2024', palette: ['#0a0a0a', '#1e3a5f', '#00d4ff', '#ffffff'], shape: 'headphone' },
-  // { title: 'Verdant Tower', cat: 'Architectural Render', year: '2024', palette: ['#0d1f0d', '#166534', '#4ade80', '#f0fdf4'], shape: 'arch' },
-  // { title: 'Apex Speaker Pro', cat: 'Product Visualization', year: '2023', palette: ['#111', '#333', '#888', '#c8ff00'], shape: 'speaker' },
-  //{ title: 'Nova Wristwatch', cat: 'Product Visualization', year: '2023', palette: ['#1c0a00', '#92400e', '#f59e0b', '#fef3c7'], shape: 'watch' },
-  // { title: 'Flux Brand Animation', cat: 'Motion & Animation', year: '2024', palette: ['#0a0a1a', '#1e1b4b', '#7c3aed', '#a78bfa'], shape: 'motion' },
-  { title: 'Spy Camera Cinematic Showcase', cat: 'Product Animation', year: '2026', type: 'video', videoId: 'wE6YlvS5PoI', thumbnail: 'video_thumbnail.png' },
-  { title: 'Charger - Cinematic Showcase', cat: 'Product Animation', year: '2025', type: 'video', videoId: '5L7uCbVqzo8', thumbnail: 'thumb_short1.png', aspect: 'vertical' },
-  { title: 'Phone Holder - Showcase', cat: '3D Animation', year: '2025', type: 'video', videoId: 'uYYYT2geang', thumbnail: 'thumb_short2.png', aspect: 'vertical' },
-  { title: 'Lipstics Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'W1IoGSSVosU', thumbnail: 'thumb_short4.png', aspect: 'vertical' },
-  { title: 'Eyeliner Reveal', cat: '3D Animation', year: '2025', type: 'video', videoId: 'P5nUwMpS-F8', thumbnail: 'thumb_short3.png', aspect: 'vertical' }
-];
-
 const grid = document.getElementById('portfolioGrid');
 
-projects.forEach((p, i) => {
+// Extracts YouTube video ID from any URL format or bare ID
+function extractYouTubeId(input) {
+  if (!input) return '';
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/,
+    /^([A-Za-z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = input.trim().match(p);
+    if (m) return m[1];
+  }
+  return input.trim();
+}
+
+// Store portfolio data for lightbox
+const portfolioData = [];
+
+function buildPortfolioItem(p, i) {
+  portfolioData.push(p);
   const div = document.createElement('div');
-  const aspectClass = p.aspect === 'vertical' ? ' pitem-vertical' : (p.type === 'video' ? ' pitem-horizontal' : '');
+  const isVert = p.aspect === 'vertical';
+  const aspectClass = isVert ? ' pitem-vertical' : ' pitem-horizontal';
   div.className = 'pitem reveal' + aspectClass + (i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : '');
 
-  if (p.type === 'video') {
-    const isVertical = p.aspect === 'vertical' ? ' vertical' : '';
-    div.innerHTML = `
-      <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}">
-        <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
-        <div class="video-play-overlay" id="playOverlay${i}">
-          <div class="play-circle" id="centerBtn${i}">
-            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-          </div>
+  const isVertical = isVert ? ' vertical' : '';
+  div.innerHTML = `
+    <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}" data-video-id="${p.videoId}" data-index="${i}">
+      <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
+      <div class="video-play-overlay" id="playOverlay${i}">
+        <div class="play-circle" id="centerBtn${i}">
+          <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
-        <button class="video-fs-btn" id="fsBtn${i}" title="Fullscreen">⛶</button>
       </div>
-      <div class="pitem-overlay">
-        <div class="pitem-tag">${p.cat} · ${p.year}</div>
-        <div class="pitem-title">${p.title}</div>
-        <div class="pitem-meta">CGI Showreel · Watch on Site</div>
-      </div>
-    `;
-    grid.appendChild(div);
+      <button class="video-fs-btn" id="fsBtn${i}" title="Fullscreen">⛶</button>
+    </div>
+    <div class="pitem-overlay">
+      <div class="pitem-tag">${p.cat} · ${p.year}</div>
+      <div class="pitem-title">${p.title}</div>
+      <div class="pitem-meta">${p.meta || 'CGI Showreel · Watch on Site'}</div>
+    </div>
+  `;
+  grid.appendChild(div);
 
-    // YouTube iframe embed for in-site playback
-    setTimeout(() => {
-      const wrapper = document.getElementById('videoWrapper' + i);
-      const centerBtn = document.getElementById('centerBtn' + i);
-      const fsBtn = document.getElementById('fsBtn' + i);
-      const overlay = document.getElementById('playOverlay' + i);
-      const thumb = wrapper.querySelector('.video-thumbnail');
-      let iframeWrap = null;
-      let isPlaying = false;
-      let hideTimer = null;
+  setTimeout(() => {
+    const wrapper = document.getElementById('videoWrapper' + i);
+    const centerBtn = document.getElementById('centerBtn' + i);
+    const fsBtn = document.getElementById('fsBtn' + i);
+    const thumb = wrapper.querySelector('.video-thumbnail');
 
-      function showControls() {
-        wrapper.classList.remove('controls-hidden');
-        resetHideTimer();
-      }
+    // Click play button or thumbnail → open lightbox
+    centerBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+    thumb.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+    fsBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+  }, 100);
+}
 
-      function hideControls() {
-        if (isPlaying) wrapper.classList.add('controls-hidden');
-      }
+// ── LIGHTBOX ──────────────────────────────
+const lightbox = document.getElementById('lightbox');
+const lightboxVideo = document.getElementById('lightboxVideo');
+const lightboxInfo = document.getElementById('lightboxInfo');
+const lightboxClose = document.getElementById('lightboxClose');
+const lightboxBackdrop = document.getElementById('lightboxBackdrop');
 
-      function resetHideTimer() {
-        clearTimeout(hideTimer);
-        if (isPlaying) hideTimer = setTimeout(hideControls, 5000);
-      }
+function openLightbox(index) {
+  const p = portfolioData[index];
+  if (!p) return;
+  const isVert = p.aspect === 'vertical';
+  lightboxVideo.className = 'lightbox-video ' + (isVert ? 'lb-vertical' : 'lb-horizontal');
+  lightboxVideo.innerHTML = `
+    <div class="lb-iframe-crop">
+      <iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div class="lb-click-blocker"></div>
+    </div>`;
+  lightboxInfo.innerHTML = `<div class="lightbox-title">${p.title}</div><div class="lightbox-meta">${p.cat} · ${p.year}</div>`;
+  lightbox.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
 
-      function createIframe() {
+function closeLightbox() {
+  lightbox.classList.remove('active');
+  lightboxVideo.innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+lightboxClose.addEventListener('click', closeLightbox);
+lightboxBackdrop.addEventListener('click', closeLightbox);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ── FLOATING CTA ──────────────────────────
+const floatingCta = document.getElementById('floatingCta');
+const hero = document.getElementById('hero');
+const heroObserver = new IntersectionObserver(entries => {
+  floatingCta.classList.toggle('visible', !entries[0].isIntersecting);
+}, { threshold: 0.5 });
+if (hero) heroObserver.observe(hero);
+
+// ── SCROLL AUTOPLAY ───────────────────────
+const videoWrappers = [];
+const videoObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const wrapper = entry.target;
+    const videoId = wrapper.dataset.videoId;
+    const index = wrapper.dataset.index;
+    let iframeWrap = wrapper.querySelector('.yt-iframe-wrap');
+    let isPlaying = wrapper.classList.contains('playing');
+
+    if (entry.isIntersecting && !isPlaying) {
+      // Play video
+      if (!iframeWrap) {
         iframeWrap = document.createElement('div');
         iframeWrap.className = 'yt-iframe-wrap';
         const iframe = document.createElement('iframe');
-        iframe.src = 'https://www.youtube-nocookie.com/embed/' + p.videoId + '?si=UOiL14FE1Dnih4QW&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1';
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1`;
         iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         iframe.setAttribute('allowfullscreen', '');
         iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        iframe.setAttribute('loading', 'lazy');
         iframeWrap.appendChild(iframe);
-        // Add transparent overlay to block YouTube's red play watermark
         const blocker = document.createElement('div');
         blocker.className = 'yt-click-blocker';
         iframeWrap.appendChild(blocker);
-        wrapper.insertBefore(iframeWrap, overlay);
+        wrapper.insertBefore(iframeWrap, wrapper.querySelector('.video-play-overlay'));
       }
+      wrapper.classList.add('playing');
+      isPlaying = true;
+    } else if (!entry.isIntersecting && isPlaying) {
+      // Pause video
+      if (iframeWrap) {
+        iframeWrap.remove();
+      }
+      wrapper.classList.remove('playing');
+      isPlaying = false;
+    }
+  });
+}, { threshold: 0.6 }); // Trigger when 60% of the video is visible
 
-      function updatePlayIcon(playing) {
-        if (playing) {
-          centerBtn.innerHTML = '<svg class="pause-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" fill="var(--accent)"/><rect x="15" y="3" width="4" height="18" fill="var(--accent)"/></svg>';
+// ── STAT COUNTER ──────────────────────────
+const statCounters = document.querySelectorAll('.stat-counter');
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.animated) {
+      const target = entry.target;
+      const endValue = parseInt(target.dataset.count, 10);
+      let startValue = 0;
+      const duration = 2000; // 2 seconds
+      const startTime = performance.now();
+
+      function animateCount(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        const currentValue = Math.floor(progress * endValue);
+        target.textContent = currentValue.toLocaleString();
+        if (progress < 1) {
+          requestAnimationFrame(animateCount);
         } else {
-          centerBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
+          target.dataset.animated = 'true'; // Mark as animated
         }
       }
+      requestAnimationFrame(animateCount);
+    }
+  });
+}, { threshold: 0.8 }); // Trigger when 80% of the counter is visible
 
-      function play() {
-        if (!iframeWrap) createIframe();
-        wrapper.classList.add('playing');
-        updatePlayIcon(true);
-        isPlaying = true;
-        resetHideTimer();
-      }
-
-      function pause() {
-        if (iframeWrap) { iframeWrap.remove(); iframeWrap = null; }
-        wrapper.classList.remove('playing');
-        wrapper.classList.remove('controls-hidden');
-        updatePlayIcon(false);
-        isPlaying = false;
-        clearTimeout(hideTimer);
-      }
-
-      // Click center button to play/pause
-      centerBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (isPlaying) pause(); else play();
-      });
-
-      // Click thumbnail to play
-      thumb.addEventListener('click', (e) => { e.stopPropagation(); play(); });
-
-      // Click on wrapper to toggle controls visibility when playing
-      wrapper.addEventListener('click', (e) => {
-        if (!isPlaying) return;
-        if (e.target === fsBtn || e.target === centerBtn || centerBtn.contains(e.target)) return;
-        showControls();
-      });
-
-      fsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!iframeWrap) play();
-        const el = wrapper;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        else if (el.msRequestFullscreen) el.msRequestFullscreen();
-      });
-    }, 100);
-  } else {
-    div.innerHTML = `
-      <canvas class="pitem-canvas" id="pc${i}"></canvas>
-      <div class="pitem-overlay">
-        <div class="pitem-tag">${p.cat} · ${p.year}</div>
-        <div class="pitem-title">${p.title}</div>
-        <div class="pitem-meta">Photorealistic · Commercial License</div>
-      </div>
-      <div class="pitem-arrow">↗</div>
-    `;
-    grid.appendChild(div);
-    setTimeout(() => drawPortfolioItem(`pc${i}`, p), 100 * i);
-  }
+statCounters.forEach(counter => {
+  counterObserver.observe(counter);
 });
+
+// Load portfolio from portfolio.json, fall back gracefully
+fetch('portfolio.json')
+  .then(r => r.json())
+  .then(projects => {
+    projects.forEach((p, i) => buildPortfolioItem(p, i));
+    // Re-observe any newly added .reveal elements
+    document.querySelectorAll('.pitem.reveal:not(.visible)').forEach(el => observer.observe(el));
+    // Register scroll autoplay for all video wrappers
+    document.querySelectorAll('.pitem-video-wrapper[data-video-id]').forEach(w => videoObserver.observe(w));
+  })
+  .catch(() => {
+    grid.innerHTML = '<p style="color:var(--muted);padding:2rem">Could not load portfolio data.</p>';
+  });
 
 function drawPortfolioItem(id, p) {
   const canvas = document.getElementById(id);
@@ -506,3 +542,76 @@ window.addEventListener('scroll', () => {
     o.style.transform = `translateY(${y * (0.1 + i * 0.05)}px)`;
   });
 });
+
+// ── SHOWREEL PLAYER ────────────────────────
+(function() {
+  const player = document.getElementById('showreelPlayer');
+  const playBtn = document.getElementById('showreelPlayBtn');
+  const fsBtn = document.getElementById('showreelFsBtn');
+  const thumb = document.getElementById('showreelThumb');
+  if (!player || !playBtn) return;
+
+  let iframeWrap = null;
+  let isPlaying = false;
+  let hideTimer = null;
+  const videoId = 'hC-G8UPCVXw';
+
+  function showControls() { player.classList.remove('controls-hidden'); resetHideTimer(); }
+  function hideControls() { if (isPlaying) player.classList.add('controls-hidden'); }
+  function resetHideTimer() { clearTimeout(hideTimer); if (isPlaying) hideTimer = setTimeout(hideControls, 2500); }
+
+  function createIframe() {
+    iframeWrap = document.createElement('div');
+    iframeWrap.className = 'yt-iframe-wrap';
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=' + videoId + '&vq=hd1080&hd=1';
+    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('loading', 'lazy');
+    iframeWrap.appendChild(iframe);
+    const blocker = document.createElement('div');
+    blocker.className = 'yt-click-blocker';
+    iframeWrap.appendChild(blocker);
+    player.insertBefore(iframeWrap, player.querySelector('.video-play-overlay'));
+  }
+
+  function updatePlayIcon(playing) {
+    playBtn.innerHTML = playing
+      ? '<svg class="pause-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" fill="var(--accent)"/><rect x="15" y="3" width="4" height="18" fill="var(--accent)"/></svg>'
+      : '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
+  }
+
+  function play() {
+    if (!iframeWrap) createIframe();
+    player.classList.add('playing');
+    updatePlayIcon(true);
+    isPlaying = true;
+    resetHideTimer();
+  }
+
+  function pause() {
+    if (iframeWrap) { iframeWrap.remove(); iframeWrap = null; }
+    player.classList.remove('playing', 'controls-hidden');
+    updatePlayIcon(false);
+    isPlaying = false;
+    clearTimeout(hideTimer);
+  }
+
+  playBtn.addEventListener('click', e => { e.stopPropagation(); isPlaying ? pause() : play(); });
+  thumb.addEventListener('click', e => { e.stopPropagation(); play(); });
+  player.addEventListener('click', e => {
+    if (!isPlaying) return;
+    if (e.target === fsBtn || e.target === playBtn || playBtn.contains(e.target)) return;
+    showControls();
+  });
+  fsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!iframeWrap) play();
+    if (player.requestFullscreen) player.requestFullscreen();
+    else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+    else if (player.msRequestFullscreen) player.msRequestFullscreen();
+  });
+
+  // Auto-hide controls for showreel too
+  player.addEventListener('mousemove', showControls);
+})();

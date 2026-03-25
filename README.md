@@ -1,4 +1,4 @@
-# VOID — 3D Visual Artist Portfolio
+# AtmonFX — 3D Visual Artist Portfolio
 
 A premium, dark-themed portfolio website for a 3D visual artist. Built entirely with vanilla HTML, CSS & JavaScript — zero dependencies, zero frameworks.
 
@@ -24,7 +24,7 @@ A premium, dark-themed portfolio website for a 3D visual artist. Built entirely 
 ## 📂 Project Structure
 
 ```
-VOID/
+AtmonFX/
 ├── index.html           # Main portfolio page (single-file architecture)
 ├── video_thumbnail.png  # Showreel thumbnail
 └── README.md
@@ -35,8 +35,8 @@ VOID/
 Clone and open locally:
 
 ```bash
-git clone https://github.com/Venom4522/VOID.git
-cd VOID
+git clone https://github.com/Venom4522/AtmonFX.git
+cd AtmonFX
 ```
 
 For full functionality (including YouTube embed), serve via HTTP:
