@@ -24,7 +24,11 @@ function extractYouTubeId(input) {
   return input.trim();
 }
 
+// Store portfolio data for lightbox
+const portfolioData = [];
+
 function buildPortfolioItem(p, i) {
+  portfolioData.push(p);
   const div = document.createElement('div');
   const isVert = p.aspect === 'vertical';
   const aspectClass = isVert ? ' pitem-vertical' : ' pitem-horizontal';
@@ -32,7 +36,7 @@ function buildPortfolioItem(p, i) {
 
   const isVertical = isVert ? ' vertical' : '';
   div.innerHTML = `
-    <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}">
+    <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}" data-video-id="${p.videoId}" data-index="${i}">
       <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
       <div class="video-play-overlay" id="playOverlay${i}">
         <div class="play-circle" id="centerBtn${i}">
@@ -53,71 +57,125 @@ function buildPortfolioItem(p, i) {
     const wrapper = document.getElementById('videoWrapper' + i);
     const centerBtn = document.getElementById('centerBtn' + i);
     const fsBtn = document.getElementById('fsBtn' + i);
-    const overlay = document.getElementById('playOverlay' + i);
     const thumb = wrapper.querySelector('.video-thumbnail');
-    let iframeWrap = null;
-    let isPlaying = false;
-    let hideTimer = null;
 
-    function showControls() { wrapper.classList.remove('controls-hidden'); resetHideTimer(); }
-    function hideControls() { if (isPlaying) wrapper.classList.add('controls-hidden'); }
-    function resetHideTimer() { clearTimeout(hideTimer); if (isPlaying) hideTimer = setTimeout(hideControls, 2500); }
-
-    function createIframe() {
-      iframeWrap = document.createElement('div');
-      iframeWrap.className = 'yt-iframe-wrap';
-      const iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube.com/embed/' + p.videoId + '?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1';
-      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-      iframe.setAttribute('allowfullscreen', '');
-      iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-      iframe.setAttribute('loading', 'lazy');
-      iframeWrap.appendChild(iframe);
-      const blocker = document.createElement('div');
-      blocker.className = 'yt-click-blocker';
-      iframeWrap.appendChild(blocker);
-      wrapper.insertBefore(iframeWrap, overlay);
-    }
-
-    function updatePlayIcon(playing) {
-      centerBtn.innerHTML = playing
-        ? '<svg class="pause-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" fill="var(--accent)"/><rect x="15" y="3" width="4" height="18" fill="var(--accent)"/></svg>'
-        : '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
-    }
-
-    function play() {
-      if (!iframeWrap) createIframe();
-      wrapper.classList.add('playing');
-      updatePlayIcon(true);
-      isPlaying = true;
-      resetHideTimer();
-    }
-
-    function pause() {
-      if (iframeWrap) { iframeWrap.remove(); iframeWrap = null; }
-      wrapper.classList.remove('playing', 'controls-hidden');
-      updatePlayIcon(false);
-      isPlaying = false;
-      clearTimeout(hideTimer);
-    }
-
-    centerBtn.addEventListener('click', e => { e.stopPropagation(); isPlaying ? pause() : play(); });
-    thumb.addEventListener('click', e => { e.stopPropagation(); play(); });
-    wrapper.addEventListener('click', e => {
-      if (!isPlaying) return;
-      if (e.target === fsBtn || e.target === centerBtn || centerBtn.contains(e.target)) return;
-      showControls();
-    });
-    fsBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      if (!iframeWrap) play();
-      const el = wrapper;
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else if (el.msRequestFullscreen) el.msRequestFullscreen();
-    });
+    // Click play button or thumbnail → open lightbox
+    centerBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+    thumb.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+    fsBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
   }, 100);
 }
+
+// ── LIGHTBOX ──────────────────────────────
+const lightbox = document.getElementById('lightbox');
+const lightboxVideo = document.getElementById('lightboxVideo');
+const lightboxInfo = document.getElementById('lightboxInfo');
+const lightboxClose = document.getElementById('lightboxClose');
+const lightboxBackdrop = document.getElementById('lightboxBackdrop');
+
+function openLightbox(index) {
+  const p = portfolioData[index];
+  if (!p) return;
+  const isVert = p.aspect === 'vertical';
+  lightboxVideo.className = 'lightbox-video ' + (isVert ? 'lb-vertical' : 'lb-horizontal');
+  lightboxVideo.innerHTML = `
+    <div class="lb-iframe-crop">
+      <iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div class="lb-click-blocker"></div>
+    </div>`;
+  lightboxInfo.innerHTML = `<div class="lightbox-title">${p.title}</div><div class="lightbox-meta">${p.cat} · ${p.year}</div>`;
+  lightbox.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('active');
+  lightboxVideo.innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+lightboxClose.addEventListener('click', closeLightbox);
+lightboxBackdrop.addEventListener('click', closeLightbox);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ── FLOATING CTA ──────────────────────────
+const floatingCta = document.getElementById('floatingCta');
+const hero = document.getElementById('hero');
+const heroObserver = new IntersectionObserver(entries => {
+  floatingCta.classList.toggle('visible', !entries[0].isIntersecting);
+}, { threshold: 0.5 });
+if (hero) heroObserver.observe(hero);
+
+// ── SCROLL AUTOPLAY ───────────────────────
+const videoWrappers = [];
+const videoObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const wrapper = entry.target;
+    const videoId = wrapper.dataset.videoId;
+    const index = wrapper.dataset.index;
+    let iframeWrap = wrapper.querySelector('.yt-iframe-wrap');
+    let isPlaying = wrapper.classList.contains('playing');
+
+    if (entry.isIntersecting && !isPlaying) {
+      // Play video
+      if (!iframeWrap) {
+        iframeWrap = document.createElement('div');
+        iframeWrap.className = 'yt-iframe-wrap';
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1`;
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        iframe.setAttribute('loading', 'lazy');
+        iframeWrap.appendChild(iframe);
+        const blocker = document.createElement('div');
+        blocker.className = 'yt-click-blocker';
+        iframeWrap.appendChild(blocker);
+        wrapper.insertBefore(iframeWrap, wrapper.querySelector('.video-play-overlay'));
+      }
+      wrapper.classList.add('playing');
+      isPlaying = true;
+    } else if (!entry.isIntersecting && isPlaying) {
+      // Pause video
+      if (iframeWrap) {
+        iframeWrap.remove();
+      }
+      wrapper.classList.remove('playing');
+      isPlaying = false;
+    }
+  });
+}, { threshold: 0.6 }); // Trigger when 60% of the video is visible
+
+// ── STAT COUNTER ──────────────────────────
+const statCounters = document.querySelectorAll('.stat-counter');
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.animated) {
+      const target = entry.target;
+      const endValue = parseInt(target.dataset.count, 10);
+      let startValue = 0;
+      const duration = 2000; // 2 seconds
+      const startTime = performance.now();
+
+      function animateCount(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        const currentValue = Math.floor(progress * endValue);
+        target.textContent = currentValue.toLocaleString();
+        if (progress < 1) {
+          requestAnimationFrame(animateCount);
+        } else {
+          target.dataset.animated = 'true'; // Mark as animated
+        }
+      }
+      requestAnimationFrame(animateCount);
+    }
+  });
+}, { threshold: 0.8 }); // Trigger when 80% of the counter is visible
+
+statCounters.forEach(counter => {
+  counterObserver.observe(counter);
+});
 
 // Load portfolio from portfolio.json, fall back gracefully
 fetch('portfolio.json')
@@ -126,6 +184,8 @@ fetch('portfolio.json')
     projects.forEach((p, i) => buildPortfolioItem(p, i));
     // Re-observe any newly added .reveal elements
     document.querySelectorAll('.pitem.reveal:not(.visible)').forEach(el => observer.observe(el));
+    // Register scroll autoplay for all video wrappers
+    document.querySelectorAll('.pitem-video-wrapper[data-video-id]').forEach(w => videoObserver.observe(w));
   })
   .catch(() => {
     grid.innerHTML = '<p style="color:var(--muted);padding:2rem">Could not load portfolio data.</p>';

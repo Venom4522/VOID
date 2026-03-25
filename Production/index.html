@@ -56,11 +56,11 @@
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-num">80+</div>
+        <div class="stat-num"><span class="stat-counter" data-count="80">0</span>+</div>
         <div class="stat-label">Projects Delivered</div>
       </div>
       <div class="stat">
-        <div class="stat-num">40+</div>
+        <div class="stat-num"><span class="stat-counter" data-count="40">0</span>+</div>
         <div class="stat-label">Clients Worldwide</div>
       </div>
       <div class="stat">
@@ -448,6 +448,22 @@
       <a href="#contact">Contact</a>
     </div>
   </footer>
+
+  <!-- Video Lightbox Modal -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <button class="lightbox-close" id="lightboxClose">✕</button>
+    <div class="lightbox-content">
+      <div class="lightbox-video" id="lightboxVideo"></div>
+      <div class="lightbox-info" id="lightboxInfo"></div>
+    </div>
+  </div>
+
+  <!-- Floating CTA -->
+  <a href="#contact" class="floating-cta" id="floatingCta">
+    <span class="floating-cta-pulse"></span>
+    Start a Project →
+  </a>
 
   <script src="script.js"></script>
 
