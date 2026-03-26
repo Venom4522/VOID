@@ -333,58 +333,71 @@
   }
   .pitem:hover .pitem-arrow { opacity: 1; }
 
-  /* ── ABOUT ────────────────────────────── */
+  /* ── TEAM ──────────────────────────────── */
   #about {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6rem;
+    display: block;
+    background: var(--bg);
+  }
+  .team-header {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 5rem;
+    display: flex;
+    flex-direction: column;
     align-items: center;
   }
-  .about-visual {
-    position: relative;
-    aspect-ratio: 4/5;
+  .team-header .section-subtitle {
+    margin-bottom: 0;
   }
-  .about-canvas {
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .team-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: transform 0.3s, border-color 0.3s;
+    overflow: hidden;
+  }
+  .team-card:hover {
+    border-color: rgba(200,255,0,0.3);
+    transform: translateY(-5px);
+  }
+  .team-img {
+    width: 100%;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .team-img img {
     width: 100%;
     height: 100%;
-    border: 1px solid var(--border);
+    object-fit: cover;
+    filter: grayscale(100%) contrast(1.1);
+    transition: filter 0.5s, transform 0.5s;
   }
-  .about-badge {
-    position: absolute;
-    bottom: -1.5rem; right: -1.5rem;
-    background: var(--accent);
-    color: var(--bg);
+  .team-card:hover .team-img img {
+    filter: grayscale(0%) contrast(1.1);
+    transform: scale(1.05);
+  }
+  .team-info {
     padding: 1.5rem;
+    text-align: center;
+  }
+  .team-info h3 {
     font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 2.5rem;
-    line-height: 1;
+    font-size: 1.2rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
   }
-  .about-badge span { display: block; font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 300; letter-spacing: 0.2em; margin-top: 0.3rem; }
-  .about-text h2 { margin-bottom: 1.5rem; }
-  .about-body {
-    color: var(--muted);
-    line-height: 1.9;
-    font-size: 0.85rem;
-    margin-bottom: 2.5rem;
-  }
-  .skills-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-  }
-  .skill-item {
-    border: 1px solid var(--border);
-    padding: 0.8rem 1rem;
+  .team-role {
     font-size: 0.7rem;
     letter-spacing: 0.1em;
+    color: var(--accent);
     text-transform: uppercase;
-    color: var(--muted);
-    display: flex; align-items: center; gap: 0.6rem;
-    transition: border-color 0.3s, color 0.3s;
   }
-  .skill-item::before { content: '▸'; color: var(--accent); font-size: 0.6rem; }
-  .skill-item:hover { border-color: rgba(200,255,0,0.3); color: var(--text); }
 
   /* ── SERVICES ─────────────────────────── */
   #services {
@@ -866,11 +879,8 @@
     .pitem:nth-child(n), .pitem-horizontal, .pitem-vertical { grid-column: span 1 !important; grid-row: span 1 !important; }
     .pitem-video-wrapper.vertical { aspect-ratio: 9/16; max-height: 60vh; }
 
-    #about, .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
-    .about-visual { max-height: 300px; }
-    .about-canvas { max-height: 300px; }
-    .about-badge { right: 0; bottom: -1rem; padding: 1rem; font-size: 1.8rem; }
-    .about-badge span { font-size: 0.55rem; }
+    .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
+    .team-grid { grid-template-columns: 1fr; gap: 2rem; }
 
     .services-grid, .process-steps, .pricing-grid, .testi-grid { grid-template-columns: 1fr; }
     .service-card, .process-step { border-right: none; border-bottom: 1px solid var(--border); }
@@ -901,8 +911,7 @@
     .section-subtitle { font-size: 1rem; margin-bottom: 2.5rem; }
     .section-label { font-size: 0.6rem; }
 
-    .skills-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .skill-item { padding: 0.6rem 0.8rem; font-size: 0.6rem; }
+
   }
 
   @media (max-width: 480px) {
