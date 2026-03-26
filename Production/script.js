@@ -512,7 +512,7 @@ if (contactForm) {
     btn.disabled = true;
 
     // these IDs from the previous steps
-    emailjs.sendForm('service_i1wq8q9', 'template_0nv4xh6', this)
+    emailjs.sendForm('service_i1wq8q9', 'template_4i6q7nn', this)
         .then(() => {
             btn.style.display = 'none';
             document.getElementById('formNote').style.display = 'block';
