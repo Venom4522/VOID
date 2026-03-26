@@ -507,31 +507,22 @@ if (contactForm) {
   contactForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const btn = contactForm.querySelector('.form-submit');
+    const originalText = btn.textContent;
     btn.textContent = 'Sending...';
     btn.disabled = true;
 
-    const formData = new FormData(contactForm);
-
-    fetch('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(formData).toString()
-    })
-      .then(res => {
-        if (res.ok) {
-          btn.style.display = 'none';
-          document.getElementById('formNote').style.display = 'block';
-          contactForm.reset();
-        } else {
-          throw new Error('Form submission failed');
-        }
-      })
-      .catch(err => {
-        btn.textContent = 'Send Message → Let\'s Create';
-        btn.disabled = false;
-        alert('Something went wrong. Please try again or email directly.');
-        console.error(err);
-      });
+    // these IDs from the previous steps
+    emailjs.sendForm('service_i1wq8q9', 'template_0nv4xh6', this)
+        .then(() => {
+            btn.style.display = 'none';
+            document.getElementById('formNote').style.display = 'block';
+            contactForm.reset();
+        }, (error) => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            alert('Something went wrong. Please try again or email directly.');
+            console.log('FAILED...', error);
+        });
   });
 }
 

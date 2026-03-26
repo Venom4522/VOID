@@ -399,8 +399,7 @@
         </div>
       </div>
       <div class="reveal reveal-delay-2">
-        <form class="contact-form" id="contactForm" name="contact" method="POST" data-netlify="true">
-          <input type="hidden" name="form-name" value="contact">
+        <form class="contact-form" id="contactForm">
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Your Name</label>
@@ -477,7 +476,14 @@
     <span class="floating-cta-pulse"></span>
     Start a Project →
   </a>
-
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      emailjs.init({
+        publicKey: "gzS4-7Lmc-wmJo6Ww",
+      });
+    })();
+  </script>
   <script src="script.js"></script>
 
 </body>
