@@ -63,6 +63,19 @@ function buildPortfolioItem(p, i) {
     centerBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
     thumb.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
     fsBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+
+    let hideTimer = null;
+    wrapper.addEventListener('click', () => {
+      if (wrapper.classList.contains('playing')) {
+        wrapper.classList.remove('controls-hidden');
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => {
+          if (wrapper.classList.contains('playing')) {
+            wrapper.classList.add('controls-hidden');
+          }
+        }, 2500);
+      }
+    });
   }, 100);
 }
 
@@ -133,14 +146,14 @@ const videoObserver = new IntersectionObserver(entries => {
         iframeWrap.appendChild(blocker);
         wrapper.insertBefore(iframeWrap, wrapper.querySelector('.video-play-overlay'));
       }
-      wrapper.classList.add('playing');
+      wrapper.classList.add('playing', 'controls-hidden');
       isPlaying = true;
     } else if (!entry.isIntersecting && isPlaying) {
       // Pause video
       if (iframeWrap) {
         iframeWrap.remove();
       }
-      wrapper.classList.remove('playing');
+      wrapper.classList.remove('playing', 'controls-hidden');
       isPlaying = false;
     }
   });
