@@ -64,17 +64,9 @@ function buildPortfolioItem(p, i) {
     thumb.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
     fsBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
 
-    let hideTimer = null;
-    wrapper.addEventListener('click', () => {
-      if (wrapper.classList.contains('playing')) {
-        wrapper.classList.remove('controls-hidden');
-        clearTimeout(hideTimer);
-        hideTimer = setTimeout(() => {
-          if (wrapper.classList.contains('playing')) {
-            wrapper.classList.add('controls-hidden');
-          }
-        }, 2500);
-      }
+    wrapper.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLightbox(i);
     });
   }, 100);
 }
@@ -93,8 +85,7 @@ function openLightbox(index) {
   lightboxVideo.className = 'lightbox-video ' + (isVert ? 'lb-vertical' : 'lb-horizontal');
   lightboxVideo.innerHTML = `
     <div class="lb-iframe-crop">
-      <iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      <div class="lb-click-blocker"></div>
+      <iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&playsinline=1&vq=hd1080&hd=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>`;
   lightboxInfo.innerHTML = `<div class="lightbox-title">${p.title}</div><div class="lightbox-meta">${p.cat} · ${p.year}</div>`;
   lightbox.classList.add('active');
@@ -135,7 +126,7 @@ const videoObserver = new IntersectionObserver(entries => {
         iframeWrap = document.createElement('div');
         iframeWrap.className = 'yt-iframe-wrap';
         const iframe = document.createElement('iframe');
-        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&vq=hd1080&hd=1`;
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=${videoId}&vq=hd1080&hd=1`;
         iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         iframe.setAttribute('allowfullscreen', '');
         iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
