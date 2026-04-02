@@ -1,0 +1,12 @@
+# AtmonFX Studio - robots.txt
+# Allow all search engines to crawl the entire site
+
+User-agent: *
+Allow: /
+Disallow: /admin.html
+
+# Sitemap location — UPDATE domain if you use a custom domain
+Sitemap: https://atmonfx.vercel.app/sitemap.xml
+
+# Crawl-delay (optional, be friendly to bots)
+Crawl-delay: 1
