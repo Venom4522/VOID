@@ -6,7 +6,7 @@ Allow: /
 Disallow: /admin.html
 
 # Sitemap location — UPDATE domain if you use a custom domain
-Sitemap: https://atmonfx.vercel.app/sitemap.xml
+Sitemap: https://atmonfx.com/sitemap.xml
 
 # Crawl-delay (optional, be friendly to bots)
 Crawl-delay: 1
