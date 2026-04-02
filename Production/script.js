@@ -36,13 +36,17 @@ function buildPortfolioItem(p, i) {
 
   const isVertical = isVert ? ' vertical' : '';
   div.innerHTML = `
-    <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}" data-video-id="${p.videoId}" data-index="${i}">
+    <div class="pitem-video-wrapper${isVertical}" id="videoWrapper${i}" data-video-id="${p.videoId}" data-index="${i}" data-muted="true">
       <img class="video-thumbnail" src="${p.thumbnail}" alt="${p.title}">
       <div class="video-play-overlay" id="playOverlay${i}">
         <div class="play-circle" id="centerBtn${i}">
           <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
       </div>
+      <button class="video-mute-btn" id="muteBtn${i}" title="Unmute">
+        <svg class="mute-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+        <svg class="unmute-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      </button>
       <button class="video-fs-btn" id="fsBtn${i}" title="Fullscreen">⛶</button>
     </div>
     <div class="pitem-overlay">
@@ -57,6 +61,7 @@ function buildPortfolioItem(p, i) {
     const wrapper = document.getElementById('videoWrapper' + i);
     const centerBtn = document.getElementById('centerBtn' + i);
     const fsBtn = document.getElementById('fsBtn' + i);
+    const muteBtn = document.getElementById('muteBtn' + i);
     const thumb = wrapper.querySelector('.video-thumbnail');
 
     // Click play button or thumbnail → open lightbox
@@ -64,8 +69,15 @@ function buildPortfolioItem(p, i) {
     thumb.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
     fsBtn.addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
 
+    // Mute/unmute toggle for portfolio videos
+    muteBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePortfolioMute(wrapper, muteBtn);
+    });
+
     wrapper.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (e.target === muteBtn || muteBtn.contains(e.target)) return;
       openLightbox(i);
     });
   }, 100);
@@ -85,7 +97,7 @@ function openLightbox(index) {
   lightboxVideo.className = 'lightbox-video ' + (isVert ? 'lb-vertical' : 'lb-horizontal');
   lightboxVideo.innerHTML = `
     <div class="lb-iframe-crop">
-      <iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&playsinline=1&vq=hd1080&hd=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1&vq=hd1080&hd=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>`;
   lightboxInfo.innerHTML = `<div class="lightbox-title">${p.title}</div><div class="lightbox-meta">${p.cat} · ${p.year}</div>`;
   lightbox.classList.add('active');
@@ -112,6 +124,47 @@ if (hero) heroObserver.observe(hero);
 
 // ── SCROLL AUTOPLAY ───────────────────────
 const videoWrappers = [];
+
+// Toggle mute/unmute for a portfolio video
+function togglePortfolioMute(wrapper, muteBtn) {
+  const isMuted = wrapper.dataset.muted === 'true';
+  const newMuted = !isMuted;
+  wrapper.dataset.muted = String(newMuted);
+
+  // Update button icon
+  const muteIcon = muteBtn.querySelector('.mute-icon');
+  const unmuteIcon = muteBtn.querySelector('.unmute-icon');
+  if (newMuted) {
+    muteIcon.style.display = '';
+    unmuteIcon.style.display = 'none';
+    muteBtn.title = 'Unmute';
+  } else {
+    muteIcon.style.display = 'none';
+    unmuteIcon.style.display = '';
+    muteBtn.title = 'Mute';
+  }
+
+  // Re-create iframe with new mute state if currently playing
+  const iframeWrap = wrapper.querySelector('.yt-iframe-wrap');
+  if (iframeWrap) {
+    const videoId = wrapper.dataset.videoId;
+    const muteParam = newMuted ? 1 : 0;
+    iframeWrap.remove();
+    const newWrap = document.createElement('div');
+    newWrap.className = 'yt-iframe-wrap';
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=${videoId}&vq=hd1080&hd=1`;
+    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+    newWrap.appendChild(iframe);
+    const blocker = document.createElement('div');
+    blocker.className = 'yt-click-blocker';
+    newWrap.appendChild(blocker);
+    wrapper.insertBefore(newWrap, wrapper.querySelector('.video-play-overlay'));
+  }
+}
+
 const videoObserver = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     const wrapper = entry.target;
@@ -121,7 +174,16 @@ const videoObserver = new IntersectionObserver(entries => {
     let isPlaying = wrapper.classList.contains('playing');
 
     if (entry.isIntersecting && !isPlaying) {
-      // Play video
+      // Play video — always start muted
+      wrapper.dataset.muted = 'true';
+      const muteBtn = wrapper.querySelector('.video-mute-btn');
+      if (muteBtn) {
+        const muteIcon = muteBtn.querySelector('.mute-icon');
+        const unmuteIcon = muteBtn.querySelector('.unmute-icon');
+        if (muteIcon) muteIcon.style.display = '';
+        if (unmuteIcon) unmuteIcon.style.display = 'none';
+        muteBtn.title = 'Unmute';
+      }
       if (!iframeWrap) {
         iframeWrap = document.createElement('div');
         iframeWrap.className = 'yt-iframe-wrap';
@@ -140,7 +202,7 @@ const videoObserver = new IntersectionObserver(entries => {
       wrapper.classList.add('playing', 'controls-hidden');
       isPlaying = true;
     } else if (!entry.isIntersecting && isPlaying) {
-      // Pause video
+      // Pause video — remove iframe entirely to stop playback
       if (iframeWrap) {
         iframeWrap.remove();
       }
@@ -548,8 +610,20 @@ window.addEventListener('scroll', () => {
 
   let iframeWrap = null;
   let isPlaying = false;
+  let isMuted = true; // Always start muted
   let hideTimer = null;
   const videoId = 'hC-G8UPCVXw';
+
+  // Create mute button for showreel
+  const showreelMuteBtn = document.createElement('button');
+  showreelMuteBtn.className = 'video-mute-btn';
+  showreelMuteBtn.id = 'showreelMuteBtn';
+  showreelMuteBtn.title = 'Unmute';
+  showreelMuteBtn.innerHTML = `
+    <svg class="mute-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+    <svg class="unmute-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+  `;
+  player.appendChild(showreelMuteBtn);
 
   function showControls() { player.classList.remove('controls-hidden'); resetHideTimer(); }
   function hideControls() { if (isPlaying) player.classList.add('controls-hidden'); }
@@ -559,7 +633,8 @@ window.addEventListener('scroll', () => {
     iframeWrap = document.createElement('div');
     iframeWrap.className = 'yt-iframe-wrap';
     const iframe = document.createElement('iframe');
-    iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=' + videoId + '&vq=hd1080&hd=1';
+    // Always start muted
+    iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=' + videoId + '&vq=hd1080&hd=1';
     iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('loading', 'lazy');
@@ -576,7 +651,45 @@ window.addEventListener('scroll', () => {
       : '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
   }
 
+  function updateShowreelMuteIcon() {
+    const muteIcon = showreelMuteBtn.querySelector('.mute-icon');
+    const unmuteIcon = showreelMuteBtn.querySelector('.unmute-icon');
+    if (isMuted) {
+      muteIcon.style.display = '';
+      unmuteIcon.style.display = 'none';
+      showreelMuteBtn.title = 'Unmute';
+    } else {
+      muteIcon.style.display = 'none';
+      unmuteIcon.style.display = '';
+      showreelMuteBtn.title = 'Mute';
+    }
+  }
+
+  function toggleShowreelMute() {
+    isMuted = !isMuted;
+    updateShowreelMuteIcon();
+    // Recreate iframe with new mute state
+    if (iframeWrap) {
+      iframeWrap.remove();
+      iframeWrap = null;
+      const newWrap = document.createElement('div');
+      newWrap.className = 'yt-iframe-wrap';
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&mute=' + (isMuted ? 1 : 0) + '&controls=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&showinfo=0&disablekb=1&loop=1&playlist=' + videoId + '&vq=hd1080&hd=1';
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      newWrap.appendChild(iframe);
+      const blocker = document.createElement('div');
+      blocker.className = 'yt-click-blocker';
+      newWrap.appendChild(blocker);
+      player.insertBefore(newWrap, player.querySelector('.video-play-overlay'));
+      iframeWrap = newWrap;
+    }
+  }
+
   function play() {
+    isMuted = true; // Reset to muted on each play
+    updateShowreelMuteIcon();
     if (!iframeWrap) createIframe();
     player.classList.add('playing');
     updatePlayIcon(true);
@@ -589,14 +702,17 @@ window.addEventListener('scroll', () => {
     player.classList.remove('playing', 'controls-hidden');
     updatePlayIcon(false);
     isPlaying = false;
+    isMuted = true; // Reset mute state
+    updateShowreelMuteIcon();
     clearTimeout(hideTimer);
   }
 
+  showreelMuteBtn.addEventListener('click', e => { e.stopPropagation(); toggleShowreelMute(); });
   playBtn.addEventListener('click', e => { e.stopPropagation(); isPlaying ? pause() : play(); });
   thumb.addEventListener('click', e => { e.stopPropagation(); play(); });
   player.addEventListener('click', e => {
     if (!isPlaying) return;
-    if (e.target === fsBtn || e.target === playBtn || playBtn.contains(e.target)) return;
+    if (e.target === fsBtn || e.target === playBtn || playBtn.contains(e.target) || e.target === showreelMuteBtn || showreelMuteBtn.contains(e.target)) return;
     showControls();
   });
   fsBtn.addEventListener('click', e => {
@@ -606,6 +722,16 @@ window.addEventListener('scroll', () => {
     else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
     else if (player.msRequestFullscreen) player.msRequestFullscreen();
   });
+
+  // Scroll-based pause for showreel
+  const showreelObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting && isPlaying) {
+        pause();
+      }
+    });
+  }, { threshold: 0.3 });
+  showreelObserver.observe(player);
 
   // Auto-hide controls for showreel too
   player.addEventListener('mousemove', showControls);

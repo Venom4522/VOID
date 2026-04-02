@@ -906,6 +906,8 @@
     .play-circle { width: 56px; height: 56px; }
     .play-circle svg { width: 22px; height: 22px; }
     .video-fs-btn { width: 30px; height: 30px; font-size: 0.9rem; }
+    .video-mute-btn { width: 30px; height: 30px; }
+    .video-mute-btn svg { width: 15px; height: 15px; }
 
     h2 { font-size: clamp(1.8rem, 6vw, 2.5rem); }
     .section-subtitle { font-size: 1rem; margin-bottom: 2.5rem; }
@@ -1031,11 +1033,38 @@
     border-color: var(--accent);
   }
 
+  /* Mute/Unmute button (bottom-left) */
+  .video-mute-btn {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    z-index: 6;
+    background: rgba(5,5,7,0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(200,255,0,0.3);
+    color: var(--accent);
+    cursor: pointer;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.4s, background 0.2s, border-color 0.2s;
+    padding: 0;
+  }
+  .video-mute-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .video-mute-btn:hover {
+    background: rgba(200,255,0,0.15);
+    border-color: var(--accent);
+  }
+
   /* Auto-hide controls */
   .pitem-video-wrapper.controls-hidden .video-play-overlay,
   .pitem-video-wrapper.controls-hidden .video-fs-btn,
+  .pitem-video-wrapper.controls-hidden .video-mute-btn,
   .showreel-player.controls-hidden .video-play-overlay,
-  .showreel-player.controls-hidden .video-fs-btn { opacity: 0; pointer-events: none; }
+  .showreel-player.controls-hidden .video-fs-btn,
+  .showreel-player.controls-hidden .video-mute-btn { opacity: 0; pointer-events: none; }
 
   /* ── VIDEO LIGHTBOX ────────────────────── */
   .lightbox {
